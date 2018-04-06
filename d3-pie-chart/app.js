@@ -35,25 +35,29 @@ d3.select("input")
     makePieChart(+d3.event.target.value)
   })
 
+const tooltip = d3.select("body")
+    .append("div")
+      .classed("tooltip", true)
+
 function quarterlyChart(inputYear) {
   var quarterlyBirths = getBirthsByQuarter(getYearData(birthData, inputYear))
 
   var qtrColorScale = d3.scaleOrdinal()
-                    .domain(quarterlyBirths.map(item => item.quarter))
-                    .range(["#f0ece9", "#d65279", "#72707c", "#d3d1e3"]);
+                        .domain(quarterlyBirths.map(item => item.quarter))
+                        .range(["#f0ece9", "#d65279", "#72707c", "#d3d1e3"]);
 
   var qtrArcs = d3.pie()
-               .value(d => d.births)
-               .sort((a, b) => a.quarter - b.quarter)
-               (quarterlyBirths);
+                  .value(d => d.births)
+                  .sort((a, b) => a.quarter - b.quarter)
+                  (quarterlyBirths);
 
   var qtrPath = d3.arc()
-               .outerRadius(width / 4)
-               .innerRadius(0);
+                  .outerRadius(width / 4)
+                  .innerRadius(0);
 
   var qtrUpdate = d3.select(".inner-chart")
-                 .selectAll(".arc")
-                 .data(qtrArcs);
+                    .selectAll(".arc")
+                    .data(qtrArcs);
 
   qtrUpdate
     .exit()
@@ -66,13 +70,15 @@ function quarterlyChart(inputYear) {
     .merge(qtrUpdate)
       .attr("fill", d => qtrColorScale(d.data.quarter))
       .attr("stroke", "black")
-      .attr("d", qtrPath);
+      .attr("d", qtrPath)
+      .on("mousemove", showTooltip)
+      .on("mouseout", hideTooltip);
 }
 
 function monthlyChart(inputYear) {
   var monthColorScale = d3.scaleOrdinal()
-                     .domain(months)
-                     .range(d3.schemeCategory20);
+                          .domain(months)
+                          .range(d3.schemeCategory20);
 
   var monthArcs = d3.pie()
                     .value(d => d.births)
@@ -82,12 +88,12 @@ function monthlyChart(inputYear) {
                     (getYearData(birthData, inputYear));
 
   var monthPath = d3.arc()
-               .outerRadius(width / 2 - 50)
-               .innerRadius(width / 4);
+                    .outerRadius(width / 2 - 50)
+                    .innerRadius(width / 4);
 
   var monthUpdate = d3.select(".outer-chart")
-                 .selectAll(".arc")
-                 .data(monthArcs);
+                      .selectAll(".arc")
+                      .data(monthArcs);
 
   monthUpdate
     .exit()
@@ -100,7 +106,9 @@ function monthlyChart(inputYear) {
     .merge(monthUpdate)
       .attr("fill", d => monthColorScale(d.data.month))
       .attr("stroke", "black")
-      .attr("d", monthPath);
+      .attr("d", monthPath)
+      .on("mousemove", showTooltip)
+      .on("mouseout", hideTooltip);
 }
 
 function makePieChart(inputYear) {
@@ -146,4 +154,24 @@ function getYearData(data, findYear) {
 function updateTitle(year) {
   d3.select(".title")
     .text(`Birth by Month and Quarter for ${year}`)
+}
+
+function showTooltip(d) {
+  const timePeriod = showTimePeriod(d)
+  tooltip
+    .style("opacity", 1)
+    .style("left",`${d3.event.x - tooltip.node().offsetWidth / 2}px`)
+    .style("top", `${d3.event.y + 15}px`)
+    .html(`
+      <p>${timePeriod}: ${d.data.quarter || d.data.month}</p>
+      <p>Births: ${d.data.births.toLocaleString()}</p>
+    `);
+}
+
+function showTimePeriod(d) {
+  return d.data.quarter ? "Quarter" : "Month"
+}
+
+function hideTooltip() {
+  tooltip.style("opacity", 0);
 }

@@ -6,3 +6,25 @@ svg, input {
 .arc {
   stroke: black;
 }
+
+.tooltip {
+  pointer-events: none;
+  opacity: 0;
+  background-color: white;
+  position: absolute;
+  border: 3px solid grey;
+}
+
+.tooltip p {
+  margin: 0;
+}
+
+.tooltip:before {
+  content: " ";
+  position: absolute;
+  border: 12px solid transparent;
+  border-bottom-color: grey;
+  top: -25px;
+  left: 50%;
+  margin-left: -6px;
+}
