@@ -5,8 +5,6 @@ const padding = 50;
 const scatterplot = d3.select("svg")
 
 // Filter data to remove null values for subscribers & literacy rate
-
-
 const filteredData = regionData.filter(confirmKeys);
 
 // Set X and Y-axis scales
@@ -19,13 +17,16 @@ const yScale = d3.scaleLinear()
                  .range([height - padding, padding]);
 
 const rScale = d3.scaleLinear()
-                .domain(d3.extent(filteredData, d => d.medianAge))
-                .range([5, 20]);
+                 .domain(d3.extent(filteredData, d => d.medianAge))
+                 .range([5, 20]);
 
 const fScale = d3.scaleLinear()
-                     .domain(d3.extent(filteredData, d => d.urbanPopulationRate))
-                     .range(['green', 'blue'])
+                  .domain(d3.extent(filteredData, d => d.urbanPopulationRate))
+                  .range(['green', 'blue'])
 
+const tooltip = d3.select("body")
+                  .append("div")
+                    .classed("tooltip", true)
 
 // Add X & Y-Axis tick marks and format to remove overflow lines
 const xAxis = d3.axisBottom(xScale)
@@ -62,6 +63,8 @@ scatterplot
     .attr("cy", d => yScale(d.subscribersPer100))
     .attr("r", d => rScale(d.medianAge))
     .attr("fill", d => fScale(d.urbanPopulationRate))
+    .on("mousemove", showTooltip)
+    .on("mouseout", hideTooltip)
 
 // Chart title
 scatterplot
@@ -98,4 +101,22 @@ function confirmKeys(obj) {
     if (obj[dataPoint] === null) return false
   }
   return true
+}
+
+function showTooltip(d) {
+  tooltip
+    .style("opacity", 1)
+    .style("left", `${d3.event.x - tooltip.node().offsetWidth / 2}px`)
+    .style("top", `${d3.event.y + 30}px`)
+    .html(`
+      <p>Region: ${d.region}</p>
+      <p>Median Age: ${d.medianAge}</p>
+      <p>Adult Literacy Rate: ${d.adultLiteracyRate}</p>
+      <p>Cell Subscribers: ${d.subscribersPer100}</p>
+    `);
+}
+
+function hideTooltip() {
+  tooltip
+    .style("opacity", 0);
 }

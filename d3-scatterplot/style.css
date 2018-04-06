@@ -7,3 +7,27 @@ svg {
   stroke: #ccc;
   stroke-dasharray: 10, 5;
 }
+
+.tooltip {
+  pointer-events: none;
+  background-color: white;
+  border: 2px solid grey;
+  border-radius: 7px;
+  padding: 10px;
+  opacity: 0;
+  position: absolute;
+}
+
+.tooltip p {
+  margin: 0;
+}
+
+.tooltip:before {
+  content: ' ';
+  position: absolute;
+  border: 12px solid transparent;
+  border-bottom-color: grey;
+  top: -25px;
+  left: 50%;
+  margin-left: -6px;
+}
